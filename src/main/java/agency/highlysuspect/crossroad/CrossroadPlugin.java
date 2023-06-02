@@ -73,27 +73,31 @@ public class CrossroadPlugin implements Plugin<Project> {
 			Files.createDirectories(outDir);
 			Path outPath = outDir.resolve(filename);
 			
-			//TODO remove!!!!!!!!!!!!
-			Files.deleteIfExists(outPath);
+			if(project.getGradle().getStartParameter().isRefreshDependencies() || project.hasProperty("crossroad.refreshDependencies")) {
+				Files.deleteIfExists(outPath);
+			}
 			
-			project.getLogger().warn("MERGE TO " + outPath);
-			
-			//okay now we do the merge
-			List<FileSystem> filesystemsToClose = new ArrayList<>();
-			try {
-				FileSystem outFs = FileSystems.newFileSystem(URI.create("jar:" + outPath.toUri()), Collections.singletonMap("create", "true"));
-				filesystemsToClose.add(outFs);
+			if(Files.notExists(outPath)) {
 				
-				List<FileSystem> inFses = new ArrayList<>();
-				for(Path p : paths) {
-					FileSystem inFs = FileSystems.newFileSystem(URI.create("jar:" + p.toUri()), Collections.emptyMap());
-					inFses.add(inFs);
-					filesystemsToClose.add(inFs);
+				project.getLogger().warn("MERGE TO " + outPath);
+				
+				//okay now we do the merge
+				List<FileSystem> filesystemsToClose = new ArrayList<>();
+				try {
+					FileSystem outFs = FileSystems.newFileSystem(URI.create("jar:" + outPath.toUri()), Collections.singletonMap("create", "true"));
+					filesystemsToClose.add(outFs);
+					
+					List<FileSystem> inFses = new ArrayList<>();
+					for(Path p : paths) {
+						FileSystem inFs = FileSystems.newFileSystem(URI.create("jar:" + p.toUri()), Collections.emptyMap());
+						inFses.add(inFs);
+						filesystemsToClose.add(inFs);
+					}
+					
+					new JarIntersector(outFs, inFses).doIt();
+				} finally {
+					for(FileSystem fs : filesystemsToClose) if(fs != null) fs.close();
 				}
-				
-				new JarIntersector(outFs, inFses).doIt();
-			} finally {
-				for(FileSystem fs : filesystemsToClose) if(fs != null) fs.close();
 			}
 			
 			return outPath;
