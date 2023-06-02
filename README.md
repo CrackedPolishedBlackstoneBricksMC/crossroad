@@ -13,7 +13,7 @@ buildscript {
 		maven { url "https://repo.sleeping.town/" }
 	}
 	dependencies {
-		classpath "agency.highlysuspect:crossroad:0.1"
+		classpath "agency.highlysuspect:crossroad:0.3"
 	}
 }
 
