@@ -78,8 +78,7 @@ public class CrossroadPlugin implements Plugin<Project> {
 			}
 			
 			if(Files.notExists(outPath)) {
-				
-				project.getLogger().warn("MERGE TO " + outPath);
+				project.getLogger().warn("(crossroad) merging to: " + outPath);
 				
 				//okay now we do the merge
 				List<FileSystem> filesystemsToClose = new ArrayList<>();
@@ -97,6 +96,16 @@ public class CrossroadPlugin implements Plugin<Project> {
 					new JarIntersector(outFs, inFses).doIt();
 				} finally {
 					for(FileSystem fs : filesystemsToClose) if(fs != null) fs.close();
+				}
+				
+				Path infoFile = outDir.resolve(filename + ".info");
+				if(Files.notExists(infoFile)) {
+					List<String> info = new ArrayList<>();
+					info.add("Merged version of: ");
+					paths.forEach(p -> info.add(p.toString()));
+					info.add("");
+					info.add("Part of " + project.getDisplayName());
+					Files.write(infoFile, info, StandardCharsets.UTF_8);
 				}
 			}
 			
