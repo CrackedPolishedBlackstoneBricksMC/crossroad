@@ -19,11 +19,17 @@ buildscript {
 
 apply plugin: "agency.highlysuspect.crossroad"
 
-//Idk write an example later lol
+//(Idk write a more basic example later lol)
 
 //the intended use case is with Minivan
-def mc1194 = minivan.getMinecraft("1.19.4")
-def mc1192 = minivan.getMinecraft("1.19.2")
-def merged = crossroad.merge(mc1194.minecraft, mc1192.minecraft)
-project.dependencies.add("compileOnly", project.files(merged))
+dependencies {
+  def a = minivan.getMinecraft("1.16.5");
+  def b = minivan.getMinecraft("1.19.4");
+  def merged = crossroad.merge(a.minecraft, b.minecraft);
+  
+  compileOnly files(merged);
+  
+  //doesn't acutally "merge" the minivan-discovered libraries, but generally is good enough
+  a.dependencies.each { compileOnly it }
+}
 ```

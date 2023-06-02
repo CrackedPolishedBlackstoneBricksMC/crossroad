@@ -10,12 +10,15 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class IntersectingClassVisitor extends ClassVisitor implements Opcodes {
@@ -50,11 +53,45 @@ public class IntersectingClassVisitor extends ClassVisitor implements Opcodes {
 			this.superName = superName;
 			this.interfaces.addAll(Arrays.asList(interfaces));
 		} else {
-			Set<String> visitingInterfaces = new HashSet<>(Arrays.asList(interfaces));
-			this.interfaces.removeIf(itf -> !visitingInterfaces.contains(itf));
+			//Classes have differing superclasses
+			if(!Objects.equals(this.superName, superName)) this.superName = "java/lang/Object";
+			
+			if(name.equals("net/minecraft/client/Minecraft")) {
+				System.out.println("Heehoo");
+			}
+			
+			//the interfaces on the class we're visiting, rendered as a set
+			Set<String> visitingInterfaces = new HashSet<>(interfaces == null ? Collections.emptyList() : Arrays.asList(interfaces));
+			
+			//Find all interfaces we know about that do not exist on the visiting class
+			Set<String> removedInterfaces = new LinkedHashSet<>();
+			for(String itf : this.interfaces) if(!visitingInterfaces.contains(itf)) removedInterfaces.add(itf);
+			
+			//Remove those interfaces from our working set
+			this.interfaces.removeAll(removedInterfaces);
+			
+			//Also try and strip those interfaces from the signature
+			//TODO: be smarter about this (don't null the whole signature, just remove offending classes from it)
+			// Also there's probably more cases where the signature must be modified?
+			// Like if a non-universally-included class shows up in the signature for other reasons
+			if(this.signature != null && !removedInterfaces.isEmpty()) {
+				for(String removedItf : removedInterfaces) {
+					if(this.signature.contains(removedItf)) {
+						this.signature = null;
+						break;
+					}
+				}
+			}
 		}
 		
 		classesSeen++;
+		
+		if(name.equals("net/minecraft/client/Minecraft")) {
+			System.err.println("CLASSES SEEN: " + classesSeen);
+			if(interfaces == null) System.err.println("NO INTERFACES IN THIS JAR");
+			else System.err.println("INTERFACES IN THIS JAR: " + String.join(", ", Arrays.asList(interfaces)));
+			System.err.println("RUNNING INTERFACES SET: " + String.join(", ", this.interfaces));
+		}
 	}
 	
 	@Override
@@ -137,6 +174,10 @@ public class IntersectingClassVisitor extends ClassVisitor implements Opcodes {
 	}
 	
 	public void accept(ClassVisitor out) {
+		if(name.equals("net/minecraft/client/Minecraft")) {
+			System.err.println("heehoo");
+		}
+		
 		out.visit(version, access, name, signature, superName, interfaces.toArray(new String[0]));
 		
 		//for some reason this accept() method takes a methodvisitor instead of a cv
@@ -157,10 +198,10 @@ public class IntersectingClassVisitor extends ClassVisitor implements Opcodes {
 		map.put(key, 1 + map.getOrDefault(key, 0));
 	}
 	
-	private <K> Set<K> filter(Map<K, Integer> map, int target) {
+	private <K> List<K> filter(Map<K, Integer> map, int target) {
 		return map.entrySet().stream()
 			.filter(e -> target == e.getValue())
 			.map(Map.Entry::getKey)
-			.collect(Collectors.toSet());
+			.collect(Collectors.toList());
 	}
 }
