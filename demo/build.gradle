@@ -1,0 +1,28 @@
+buildscript {
+	repositories {
+		mavenCentral()
+		maven { url "https://maven.fabricmc.net/" }
+		maven {
+			url "https://repo.sleeping.town/"
+			content {
+				includeModule("agency.highlysuspect", "minivan")
+			}
+		}
+	}
+	dependencies {
+		classpath "agency.highlysuspect:crossroad:0"
+		classpath "agency.highlysuspect:minivan:0.2"
+	}
+}
+
+apply plugin: "java"
+apply plugin: "agency.highlysuspect.crossroad"
+apply plugin: "agency.highlysuspect.minivan"
+
+def mc1194 = minivan.getMinecraft("1.19.4")
+def mc1192 = minivan.getMinecraft("1.19.2")
+//def lmao = minivan.getMinecraft("1.16.5")
+
+def merged = crossroad.merge(mc1194.minecraft, mc1192.minecraft)
+
+project.dependencies.add("compileOnly", project.files(merged))

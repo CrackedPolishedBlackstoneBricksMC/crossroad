@@ -1,0 +1,59 @@
+plugins {
+	id "java"
+	id "java-gradle-plugin"
+	id "maven-publish"
+}
+
+//for now, stick to Java 8
+sourceCompatibility = targetCompatibility = "1.8"
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation gradleApi()
+	
+	//java staples
+	compileOnly "org.jetbrains:annotations:24.0.1"
+	
+	//bytecode
+	implementation "org.ow2.asm:asm:9.1"
+	implementation "org.ow2.asm:asm-commons:9.1"
+	implementation "org.ow2.asm:asm-tree:9.1"
+}
+
+gradlePlugin {
+	plugins {
+		"${name}" {
+			id = "${group}.${name}"
+			implementationClass = "agency.highlysuspect.crossroad.CrossroadPlugin"
+		}
+	}
+}
+
+publishing {
+	publications {
+		plugin(MavenPublication) { publication ->
+			groupId project.group
+			artifactId project.archivesBaseName
+			version project.version
+			
+			from components["java"]
+		}
+	}
+	repositories {
+		if (project.hasProperty("publish-username")) {
+			maven {
+				url "https://repo-api.sleeping.town/"
+				credentials {
+					username project.hasProperty("publish-username") ? project.getProperty("publish-username") : null
+					password project.hasProperty("publish-password") ? project.getProperty("publish-password") : null
+				}
+			}
+		}
+		maven {
+			url file("build/maven").toURI().toString()
+		}
+	}
+}
