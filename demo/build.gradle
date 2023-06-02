@@ -27,4 +27,6 @@ dependencies {
 	def merged = crossroad.merge(a.minecraft, b.minecraft, c.minecraft, d.minecraft)
 	
 	compileOnly files(merged)
+	
+	a.dependencies.each { compileOnly it }
 }

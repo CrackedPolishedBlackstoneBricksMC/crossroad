@@ -2,7 +2,9 @@ package agency.highlysuspect.crossroadtest;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.Registry;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.LevelSettings;
@@ -19,5 +21,8 @@ public class CrossroadTest {
 		
 		System.out.println(new ItemStack(Items.ANVIL, 32).getOrCreateTag().toString());
 		System.out.println(serverDemoSettings);
+		
+		//tests that type parameters sorta work
+		Registry<Item> yeayhhhthth = null;
 	}
 }

@@ -5,6 +5,8 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.signature.SignatureReader;
+import org.objectweb.asm.signature.SignatureVisitor;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -67,13 +69,15 @@ public class IntersectingClassVisitor extends ClassVisitor implements Opcodes {
 			this.interfaces.removeAll(removedInterfaces);
 			
 			//Also try and strip those interfaces from the signature
-			//TODO: be smarter about this (don't null the whole signature, just remove offending classes from it)
-			// Also there's probably more cases where the signature must be modified?
-			// Like if a non-universally-included class shows up in the signature for other reasons
 			if(this.signature != null && !removedInterfaces.isEmpty()) {
 				for(String removedItf : removedInterfaces) {
 					if(this.signature.contains(removedItf)) {
-						this.signature = null;
+						//Houston we have a problem; we need to remove the offending class from the signature.
+						//TODO: be smarter about this
+						// Also there's probably more cases where the signature must be modified?
+						// Like if a non-universally-included class shows up in the signature for other reasons.
+						// I think this is brittle
+						this.signature = this.signature.replace(removedItf, "java/lang/Object");
 						break;
 					}
 				}

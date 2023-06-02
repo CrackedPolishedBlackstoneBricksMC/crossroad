@@ -52,7 +52,7 @@ public class CrossroadPlugin implements Plugin<Project> {
 			} catch (NoSuchAlgorithmException yourMomGay) {
 				throw new RuntimeException(yourMomGay);
 			}
-			yeah.update((byte) 1); //cache invalidation
+			yeah.update((byte) 3); //cache invalidation when updating the plugin
 			yeah.update((byte) paths.size());
 			for(Path p : paths) {
 				yeah.update(p.toString().getBytes(StandardCharsets.UTF_8));
