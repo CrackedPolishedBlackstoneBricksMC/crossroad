@@ -20,6 +20,11 @@ apply plugin: "agency.highlysuspect.crossroad"
 apply plugin: "agency.highlysuspect.minivan"
 
 dependencies {
+	compileOnly files(crossroad.merge(
+		"com.google.code.gson:gson:2.10.1",
+		"com.google.code.gson:gson:1.7.2"
+	))
+	
 	def a = minivan.getMinecraft("1.16.5")
 	def b = minivan.getMinecraft("1.18.2")
 	def c = minivan.getMinecraft("1.19.2")
