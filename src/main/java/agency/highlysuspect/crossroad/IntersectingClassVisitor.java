@@ -56,10 +56,6 @@ public class IntersectingClassVisitor extends ClassVisitor implements Opcodes {
 			//Classes have differing superclasses
 			if(!Objects.equals(this.superName, superName)) this.superName = "java/lang/Object";
 			
-			if(name.equals("net/minecraft/client/Minecraft")) {
-				System.out.println("Heehoo");
-			}
-			
 			//the interfaces on the class we're visiting, rendered as a set
 			Set<String> visitingInterfaces = new HashSet<>(interfaces == null ? Collections.emptyList() : Arrays.asList(interfaces));
 			
@@ -85,13 +81,6 @@ public class IntersectingClassVisitor extends ClassVisitor implements Opcodes {
 		}
 		
 		classesSeen++;
-		
-		if(name.equals("net/minecraft/client/Minecraft")) {
-			System.err.println("CLASSES SEEN: " + classesSeen);
-			if(interfaces == null) System.err.println("NO INTERFACES IN THIS JAR");
-			else System.err.println("INTERFACES IN THIS JAR: " + String.join(", ", Arrays.asList(interfaces)));
-			System.err.println("RUNNING INTERFACES SET: " + String.join(", ", this.interfaces));
-		}
 	}
 	
 	@Override
@@ -174,10 +163,6 @@ public class IntersectingClassVisitor extends ClassVisitor implements Opcodes {
 	}
 	
 	public void accept(ClassVisitor out) {
-		if(name.equals("net/minecraft/client/Minecraft")) {
-			System.err.println("heehoo");
-		}
-		
 		out.visit(version, access, name, signature, superName, interfaces.toArray(new String[0]));
 		
 		//for some reason this accept() method takes a methodvisitor instead of a cv
